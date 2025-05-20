@@ -4,22 +4,28 @@ import { Link, useSearchParams } from "react-router-dom"
 export default function Vans() {
     const [searchParams, setSearchParams] = useSearchParams()
     const [vans, setVans] = React.useState([])
-    
+
     const typeFilter = searchParams.get("type")
-    
+
     React.useEffect(() => {
         fetch("/api/vans")
             .then(res => res.json())
             .then(data => setVans(data.vans))
     }, [])
-    
+
     const displayedVans = typeFilter
         ? vans.filter(van => van.type === typeFilter)
         : vans
 
     const vanElements = displayedVans.map(van => (
         <div key={van.id} className="van-tile">
-            <Link to={`/vans/${van.id}`}>
+            <Link 
+                to={van.id} 
+                state={{ 
+                    search: `?${searchParams.toString()}`, 
+                    type: typeFilter 
+                }}
+            >
                 <img src={van.imageUrl} />
                 <div className="van-info">
                     <h3>{van.name}</h3>
@@ -29,49 +35,55 @@ export default function Vans() {
             </Link>
         </div>
     ))
-    
-    /**
-     * Challenge: change the Links to buttons and use the
-     * setSearchParams function to set the search params
-     * when the buttons are clicked. Keep all the classNames
-     * the same.
-     */
-    
-    const handleFilter = type => () => setSearchParams(type ? {"type": type} : {})
+
+    function handleFilterChange(key, value) {
+        setSearchParams(prevParams => {
+            if (value === null) {
+                prevParams.delete(key)
+            } else {
+                prevParams.set(key, value)
+            }
+            return prevParams
+        })
+    }
 
     return (
         <div className="van-list-container">
             <h1>Explore our van options</h1>
             <div className="van-list-filter-buttons">
-                <button className="van-type simple" onClick={handleFilter("simple")}>simple</button>
-                <button className="van-type luxury" onClick={handleFilter("luxury")}>luxury</button>
-                <button className="van-type rugged" onClick={handleFilter("rugged")}>rugged</button>
-                <button className="van-type clear-filters" onClick={handleFilter("")}>clear</button>
+                <button
+                    onClick={() => handleFilterChange("type", "simple")}
+                    className={
+                        `van-type simple 
+                        ${typeFilter === "simple" ? "selected" : ""}`
+                    }
+                >Simple</button>
+                <button
+                    onClick={() => handleFilterChange("type", "luxury")}
+                    className={
+                        `van-type luxury 
+                        ${typeFilter === "luxury" ? "selected" : ""}`
+                    }
+                >Luxury</button>
+                <button
+                    onClick={() => handleFilterChange("type", "rugged")}
+                    className={
+                        `van-type rugged 
+                        ${typeFilter === "rugged" ? "selected" : ""}`
+                    }
+                >Rugged</button>
+
+                {typeFilter ? (
+                    <button
+                        onClick={() => handleFilterChange("type", null)}
+                        className="van-type clear-filters"
+                    >Clear filter</button>
+                ) : null}
+
             </div>
             <div className="van-list">
                 {vanElements}
             </div>
         </div>
     )
-    
-    
-    /*
-                        <Link 
-                    to="?type=simple"
-                    className="van-type simple"
-                >Simple</Link>
-                <Link 
-                    to="?type=luxury"
-                    className="van-type luxury"
-                >Luxury</Link>
-                <Link 
-                    to="?type=rugged"
-                    className="van-type rugged"
-                >Rugged</Link>
-                <Link 
-                    to="."
-                    className="van-type clear-filters"
-                >Clear filter</Link>
-    
-     */
 }
