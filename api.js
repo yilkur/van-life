@@ -6,17 +6,16 @@ import {
   getDoc,
   doc,
   query,
-  where
+  where,
 } from 'firebase/firestore/lite'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyBLKLirmkzxXLqJHGk7UTAHLRVvDhhrGZU',
-  authDomain: 'vanlife-18388.firebaseapp.com',
-  projectId: 'vanlife-18388',
-  storageBucket: 'vanlife-18388.firebasestorage.app',
-  messagingSenderId: '786190940459',
-  appId: '1:786190940459:web:e94e063bc441236e70ed6e',
-  measurementId: 'G-KGZPC0GCQC',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
 const app = initializeApp(firebaseConfig)
@@ -46,14 +45,14 @@ export const getVan = async id => {
 }
 
 export async function getHostVans(id) {
-    const queryVans = query(vansCollectionRef, where("hostId", "==", 123))
-    const snapshot = await getDocs(queryVans)
-    const vans = snapshot.docs.map(doc => ({
-        ...doc.data(),
-        id: doc.id
-    }))
+  const queryVans = query(vansCollectionRef, where('hostId', '==', 123))
+  const snapshot = await getDocs(queryVans)
+  const vans = snapshot.docs.map(doc => ({
+    ...doc.data(),
+    id: doc.id,
+  }))
 
-    return vans
+  return vans
 }
 
 export async function loginUser(creds) {
